@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Data and Chart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Stock Data, Moving Average & Chart</h1>
+
+        <!-- Stock Search Section -->
+        <div id="searchSection" style="text-align: center; margin-bottom: 20px;">
+            <input type="text" id="stockSymbol" placeholder="Enter Stock Symbol (e.g., AAPL)" />
+            <input type="number" id="movingAvgPeriod" placeholder="Moving Average Period (e.g., 5)" min="1" />
+            <button id="fetchDataButton">Get Stock Data</button>
+        </div>
+
+        <!-- Error message -->
+        <div id="error-message" style="color: red; text-align: center;"></div>
+
+        <!-- Stock Data Table -->
+        <div id="stockDataContainer" style="display: none;">
+            <h2>Stock Data (Last 5 Days)</h2>
+            <table id="stockDataTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Open</th>
+                        <th>High</th>
+                        <th>Low</th>
+                        <th>Close</th>
+                        <th>Volume</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Moving Average Section -->
+        <div id="movingAverageContainer" style="display: none; margin-top: 20px;">
+            <h2>Moving Average</h2>
+            <ul id="movingAverageData" style="list-style-type: none; padding: 0;">
+                <!-- Moving Average Data will be dynamically inserted here -->
+            </ul>
+        </div>
+
+        <!-- Stock Chart Section -->
+        <div id="chartContainer" style="display: none; margin-top: 20px;">
+            <h2>Stock Chart (Last 5 Days)</h2>
+            <img id="stockChart" alt="Stock Chart" style="max-width: 100%;"/>
+        </div>
+    </div>
+
+    <script>
+        // Event listener for the fetch button
+        document.getElementById('fetchDataButton').addEventListener('click', function() {
+            const symbol = document.getElementById('stockSymbol').value.trim();
+            const movingAvgPeriod = document.getElementById('movingAvgPeriod').value.trim();
+
+            if (!symbol) {
+                document.getElementById('error-message').innerText = "Please enter a stock symbol.";
+                return;
+            }
+
+            if (!movingAvgPeriod || movingAvgPeriod <= 0) {
+                document.getElementById('error-message').innerText = "Please enter a valid moving average period.";
+                return;
+            }
+
+            document.getElementById('error-message').innerText = ''; // Clear error message
+
+            fetchStockData(symbol);
+            fetchMovingAverage(symbol, movingAvgPeriod);
+            fetchStockChart(symbol);
+        });
+
+        // Fetch stock data (last 5 days)
+        function fetchStockData(symbol) {
+            fetch(`/stock_data?symbol=${symbol}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('error-message').innerText = data.error;
+                        return;
+                    }
+
+                    document.getElementById('stockDataContainer').style.display = 'block';
+                    const tableBody = document.querySelector('#stockDataTable tbody');
+                    tableBody.innerHTML = '';  // Clear the table before populating
+
+                    for (const [date, value] of Object.entries(data)) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${date}</td>
+                            <td>${value["Open"]}</td>
+                            <td>${value["High"]}</td>
+                            <td>${value["Low"]}</td>
+                            <td>${value["Close"]}</td>
+                            <td>${value["Volume"]}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('error-message').innerText = `Failed to fetch stock data: ${error.message}`;
+                });
+        }
+
+        // Fetch moving average data
+        function fetchMovingAverage(symbol, period) {
+            fetch(`/moving_average?symbol=${symbol}&period=${period}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('movingAverageContainer').style.display = 'none';
+                        document.getElementById('error-message').innerText = data.error;
+                        return;
+                    }
+
+                    document.getElementById('movingAverageContainer').style.display = 'block';
+                    const movingAvgList = document.getElementById('movingAverageData');
+                    movingAvgList.innerHTML = '';  // Clear the list before populating
+
+                    for (const [date, value] of Object.entries(data)) {
+                        const li = document.createElement('li');
+                        li.textContent = `${date}: ${value.toFixed(2)} (Moving Average)`;
+                        movingAvgList.appendChild(li);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('movingAverageContainer').style.display = 'none';
+                    document.getElementById('error-message').innerText = `Failed to fetch moving average data: ${error.message}`;
+                });
+        }
+
+        // Fetch stock chart (last 5 days)
+        function fetchStockChart(symbol) {
+            fetch(`/stock_plot?symbol=${symbol}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('chartContainer').style.display = 'none';
+                        document.getElementById('error-message').innerText = data.error;
+                        return;
+                    }
+
+                    document.getElementById('chartContainer').style.display = 'block';
+                    const stockChart = document.getElementById('stockChart');
+                    stockChart.src = `data:image/png;base64,${data.plot_url}`;
+                })
+                .catch(error => {
+                    document.getElementById('chartContainer').style.display = 'none';
+                    document.getElementById('error-message').innerText = `Failed to fetch stock chart: ${error.message}`;
+                });
+        }
+    </script>
+</body>
+</html>

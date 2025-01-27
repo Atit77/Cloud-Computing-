@@ -1,0 +1,99 @@
+body {
+  font-family: Arial, sans-serif;
+  background-image: url('/static/images/stock_background.jpg');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: 20px;
+  margin: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: rgba(0, 0, 0, 0.7); /* Slightly dark background */
+  border-radius: 10px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  text-align: center;
+  color: #f39c12;
+}
+
+#searchSection {
+  margin-bottom: 30px;
+}
+
+#stockSymbol {
+  padding: 10px;
+  width: 200px;
+  font-size: 16px;
+}
+
+#fetchDataButton {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #f39c12;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+}
+
+#fetchDataButton:hover {
+  background-color: #e67e22;
+}
+
+#stockDataTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+#stockDataTable th, #stockDataTable td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+#stockDataTable th {
+  background-color: #f39c12;
+  color: #fff;
+}
+
+.moving-average-box {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.moving-average-box ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.moving-average-box ul li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  color: #fff;
+}
+
+.moving-average-box ul li:last-child {
+  border-bottom: none;
+}
+
+#chartContainer img {
+  width: 100%;
+  max-width: 800px;
+  display: block;
+  margin: 20px auto;
+}
+
+#error-message {
+  text-align: center;
+  color: red;
+  margin-top: 20px;
+}
